@@ -128,12 +128,83 @@ public class SeamCarver {
     // sequence of indices for horizontal seam in current picture
     public int[] findHorizontalSeam()
     {
+    
         return null;
     
     }
+    private int GetMin(double[] arr)
+    {
+        int N=arr.length;
+        int index=0;
+        double tmp=0;
+        for(int j=0;j<N;j++)
+        {
+            int F=0;
+            for(int i=0;i<N;i++)
+            {
+                if(arr[i]>arr[i+1])
+                {
+                    arr[i+1]=tmp;
+                    arr[i]=arr[i+1];
+                    arr[i]=tmp;
+                    F=1;
+                    index=i;
+                }
+            }
+            if(F==0)
+                break;
+        }
+        return index;
+        /*
+         ЦИКЛ ДЛЯ J=1 ДО N-1 ШАГ 1                       FOR J=1 TO N-1 STEP 1
+   F=0                                             F=0 
+   ЦИКЛ ДЛЯ I=1 ДО N-J ШАГ 1                       FOR I=1 TO N-J STEP 1 
+     ЕСЛИ A[I] > A[I+1] ТО ОБМЕН A[I],A[I+1]:F=1     IF A[I]>A[I+1] THEN SWAP A[I],A[I+1]:F=1
+   СЛЕДУЮЩЕЕ I                                     NEXT I  
+   ЕСЛИ F=0 ТО ВЫХОД ИЗ ЦИКЛА                      IF F=0 THEN EXIT FOR
+ СЛЕДУЮЩЕЕ J                                     NEXT J
+        */
+    }
+    
+    
+    
     // sequence of indices for vertical   seam in current picture
     public int[] findVerticalSeam()
     {
+            double[] Energy=new double[this.width()];
+        double[] findArray=new double[this.height()];
+        
+        // find first pixel
+        for(int i=0;i<this.width();i++)
+        {
+            Energy[i]=this.energy(i, 0);
+        }
+        //sort it and find minimum energy.        
+        Quick.sort(Energy);
+        int energyMinIndex=0;
+        for(int i=0;i<this.width()-1;i++)
+        {
+            if(Energy[0]==this.energy(i, 0))
+            {
+                energyMinIndex=i;
+                findArray[0]=i;
+            }
+        }
+        int minWidthIndex=0;
+        for(int i=1;i<this.height()-1;i++)
+        {
+            double minEnergy=0;
+            double[] tmp=new double[3];
+            if(i==1)
+                minWidthIndex=energyMinIndex;
+            for(int j=minWidthIndex-1;j<minWidthIndex+1;j++)
+            {
+                minEnergy=this.energy(j, i);
+                tmp[j]=this.energy(j, i);
+            }
+            int index=this.GetMin(tmp);
+            findArray[i]=index;
+        }
         return null;
     
     }
