@@ -39,8 +39,13 @@ public class SeamCarver {
     // energy of pixel at column x and row y in current picture
     public double energy(int x,int y)
     {
+        if(SideCheck.IsPointAtUpperLeftCorner(x, y, x, x))
+        {
+            
+        }
         return GetEnergyYield(x, y, "yieldX")+GetEnergyYield(x, y, "yieldY");
     }
+    
     private static double GetEnergyYield(int x,int y,String mode)
     {
         Color color1 = null,color2 = null;
@@ -55,10 +60,26 @@ public class SeamCarver {
         color2=_picture.get(x, y-1);
         
         }
+        else if(mode.equals("yieldTopCorner"))
+        {
+            color1=_picture.get(x, y+1);
+            int R1=color1.getRed();
+            int B1=color1.getBlue();
+            int G1=color1.getGreen();
+            return R1*R1+B1*B1+G1*G1;
+        }
+        else if(mode.equals("yieldBottomCorner"))
+        {
+            color1=_picture.get(x, y-1);
+            int R1=color1.getRed();
+            int B1=color1.getBlue();
+            int G1=color1.getGreen();
+            return R1*R1+B1*B1+G1*G1;
+        }
       
         int R1=color1.getRed();
         int B1=color1.getBlue();
-        int Gx1=color1.getGreen();
+        int G1=color1.getGreen();
         
         int R2=color2.getRed();
         int B2=color2.getBlue();
@@ -66,7 +87,7 @@ public class SeamCarver {
         
         int diffR=R1-R2;
         int diffB=B1-B2;
-        int diffG=Gx1-G2;
+        int diffG=G1-G2;
         
         return (double)(diffR*diffR+diffB*diffB+diffG*diffG);
     }
