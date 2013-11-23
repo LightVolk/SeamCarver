@@ -12,7 +12,10 @@ import java.awt.Color;
  * @author Konstantin
  */
 public class SeamCarver {
-    
+     String _yieldX="yieldX",
+             _yieldY="yieldY",
+             _yieldTopCorner="yieldTopCorner",
+             _yieldBottomCorner="yieldBottomCorner";
     public static Picture _picture;
     
     public SeamCarver(Picture picture)
@@ -39,9 +42,38 @@ public class SeamCarver {
     // energy of pixel at column x and row y in current picture
     public double energy(int x,int y)
     {
-        if(SideCheck.IsPointAtUpperLeftCorner(x, y, x, x))
+       
+        if(SideCheck.IsPointAtUpperLeftCorner(x, y, this.width()-1, this.height()-1))
         {
-            
+            return GetEnergyYield(x, y, _yieldTopCorner);
+        }
+        else if(SideCheck.IsPointAtUpperRightCorner(x, y, this.width()-1, this.height()-1))
+        {
+        return GetEnergyYield(x, y, _yieldTopCorner);
+        }
+        else if(SideCheck.IsPointAtBottomLeftCorner(x, y, this.width()-1, this.height()-1))
+        {
+            return GetEnergyYield(x, y, _yieldBottomCorner);
+        }
+        else if(SideCheck.IsPointAtBottomRightCorner(x, y, this.width()-1, this.height()-1))
+        {
+            return GetEnergyYield(x, y, _yieldBottomCorner);
+        }
+        else if(SideCheck.IsPointAtLeftSide(x, y, this.width()-1, this.height()-1))
+        {
+            return GetEnergyYield(x, y, _yieldY);
+        }
+        else if(SideCheck.IsPointAtRightSide(x, y, this.width()-1, this.height()-1))
+        {
+            return GetEnergyYield(x, y, _yieldY);
+        }
+        else if(SideCheck.IsPointAtTopSide(x, y, this.width()-1, this.height()-1))
+        {
+            return GetEnergyYield(x, y, _yieldX);
+        }
+        else if(SideCheck.IsPointAtBottomSide(x, y, this.width()-1, this.height()-1))
+        {
+            return GetEnergyYield(x, y, _yieldX);
         }
         return GetEnergyYield(x, y, "yieldX")+GetEnergyYield(x, y, "yieldY");
     }
