@@ -12,33 +12,36 @@ import java.awt.Color;
  * @author Konstantin
  */
 public class SeamCarver {
-     String _yieldX="yieldX",
-             _yieldY="yieldY",
-             _yieldTopCorner="yieldTopCorner",
-             _yieldBottomCorner="yieldBottomCorner";
-    private static Picture _picture;
-    private static double[][] _eMatrix;
+    private String yieldX="yieldX",
+             yieldY,
+             yieldTopCorner,
+             yieldBottomCorner;
+    private static Picture picture;
+    private static double[][] eMatrix;
     public SeamCarver(Picture picture)
     {
-        _picture=picture;
-        _eMatrix=this.GetEnergyMatrix();
+        this.yieldBottomCorner = "yieldBottomCorner";
+        this.yieldTopCorner = "yieldTopCorner";
+        this.yieldY = "yieldY";
+        SeamCarver.picture=picture;
+        eMatrix=this.GetEnergyMatrix();
     }
     
     // current picture
     public Picture picture()
     {
-        return _picture;
+        return picture;
     
     }
     // width  of current picture
     public int width()
     {
-        return _picture.width();
+        return picture.width();
     }
     // height of current picture
     public int height()
     {
-        return _picture.height();
+        return picture.height();
     }
     // energy of pixel at column x and row y in current picture
     public double energy(int x,int y)
@@ -46,35 +49,35 @@ public class SeamCarver {
        
         if(SideCheck.IsPointAtUpperLeftCorner(x, y, this.width()-1, this.height()-1))
         {
-            return GetEnergyYield(x, y, _yieldTopCorner);
+            return GetEnergyYield(x, y, yieldTopCorner);
         }
         else if(SideCheck.IsPointAtUpperRightCorner(x, y, this.width()-1, this.height()-1))
         {
-        return GetEnergyYield(x, y, _yieldTopCorner);
+        return GetEnergyYield(x, y, yieldTopCorner);
         }
         else if(SideCheck.IsPointAtBottomLeftCorner(x, y, this.width()-1, this.height()-1))
         {
-            return GetEnergyYield(x, y, _yieldBottomCorner);
+            return GetEnergyYield(x, y, yieldBottomCorner);
         }
         else if(SideCheck.IsPointAtBottomRightCorner(x, y, this.width()-1, this.height()-1))
         {
-            return GetEnergyYield(x, y, _yieldBottomCorner);
+            return GetEnergyYield(x, y, yieldBottomCorner);
         }
         else if(SideCheck.IsPointAtLeftSide(x, y, this.width()-1, this.height()-1))
         {
-            return GetEnergyYield(x, y, _yieldY);
+            return GetEnergyYield(x, y, yieldY);
         }
         else if(SideCheck.IsPointAtRightSide(x, y, this.width()-1, this.height()-1))
         {
-            return GetEnergyYield(x, y, _yieldY);
+            return GetEnergyYield(x, y, yieldY);
         }
         else if(SideCheck.IsPointAtTopSide(x, y, this.width()-1, this.height()-1))
         {
-            return GetEnergyYield(x, y, _yieldX);
+            return GetEnergyYield(x, y, yieldX);
         }
         else if(SideCheck.IsPointAtBottomSide(x, y, this.width()-1, this.height()-1))
         {
-            return GetEnergyYield(x, y, _yieldX);
+            return GetEnergyYield(x, y, yieldX);
         }
         return GetEnergyYield(x, y, "yieldX")+GetEnergyYield(x, y, "yieldY");
     }
@@ -84,9 +87,9 @@ public class SeamCarver {
     // sequence of indices for horizontal seam in current picture
     public int[] findHorizontalSeam()
     {
-        double[][] transopeMatrix=Transontire(_eMatrix);
+        double[][] transopeMatrix=Transontire(eMatrix);
         double[] Energy=new double[this.width()];
-        int[] findArray=new int[_eMatrix.length];
+        int[] findArray=new int[eMatrix.length];
         
         // find first pixel
         for(int i=0;i<transopeMatrix[0].length-1;i++)
@@ -207,17 +210,17 @@ public class SeamCarver {
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] a)
     {
-    Picture newPicture = new Picture(this._picture.width() - 1, this._picture.height());
-                for(int i = 0; i < this._picture.width(); i++)
+    Picture newPicture = new Picture(SeamCarver.picture.width() - 1, this.picture.height());
+                for(int i = 0; i < SeamCarver.picture.width(); i++)
                 {
-                        for(int j = 0; j < this._picture.height(); j++)
+                        for(int j = 0; j < SeamCarver.picture.height(); j++)
                         {
                                 try
                                 {
                                         if(i < a[j])
-                                                newPicture.set(i, j, this._picture.get(i, j));
+                                                newPicture.set(i, j, SeamCarver.picture.get(i, j));
                                         else if(i > a[j])
-                                                newPicture.set(i - 1, j, this._picture.get(i, j));
+                                                newPicture.set(i - 1, j, SeamCarver.picture.get(i, j));
                                 }
                                 catch(Exception ex)
                                 {
@@ -226,25 +229,25 @@ public class SeamCarver {
                         }
                 }
                 
-                this._eMatrix = GetEnergyMatrix();
-                this._picture = newPicture;
+                SeamCarver.eMatrix = GetEnergyMatrix();
+                SeamCarver.picture = newPicture;
     }
     
     // remove vertical   seam from current picture
     public void removeVerticalSeam(int[] a)
     {
-       Picture vertPicture=new Picture(this._picture.width(),this._picture.height()-1); 
-       for(int i=0;i<this._picture.width();i++)
+       Picture vertPicture=new Picture(SeamCarver.picture.width(),SeamCarver.picture.height()-1); 
+       for(int i=0;i<SeamCarver.picture.width();i++)
        {
-           for(int j=0;j<this._picture.height()-1;j++)
+           for(int j=0;j<SeamCarver.picture.height()-1;j++)
            {
                if(j<=a[i])
-                   vertPicture.set(i,j,this._picture.get(j, j));
+                   vertPicture.set(i,j,SeamCarver.picture.get(j, j));
                else if(j>a[i])
-                   vertPicture.set(i,j-1,this._picture.get(i, j));
+                   vertPicture.set(i,j-1,SeamCarver.picture.get(i, j));
            }
        }
-       this._picture=vertPicture;
+       SeamCarver.picture=vertPicture;
        
      
     }
@@ -253,10 +256,10 @@ public class SeamCarver {
     private double[][] GetEnergyMatrix()
     {
         
-         double[][] eMatrix=new double[_picture.width()][_picture.height()];
+         double[][] eMatrix=new double[picture.width()][picture.height()];
          
-         for(int i=0;i<_picture.width()-1;i++)
-             for(int j=0;j<_picture.height()-1;j++)
+         for(int i=0;i<picture.width()-1;i++)
+             for(int j=0;j<picture.height()-1;j++)
              {
                  eMatrix[i][j]=this.energy(i, j);
              }
@@ -280,32 +283,31 @@ public class SeamCarver {
     private static double GetEnergyYield(int x,int y,String mode)
     {
         Color color1 = null,color2 = null;
-        if(mode.equals("yieldX"))
-        {
-        color1=_picture.get(x+1,y);
-        color2=_picture.get(x-1, y);
-        }
-        else if(mode.equals("yieldY"))
-        {
-        color1=_picture.get(x, y+1);
-        color2=_picture.get(x, y-1);
-        
-        }
-        else if(mode.equals("yieldTopCorner"))
-        {
-            color1=_picture.get(x, y+1);
-            int R1=color1.getRed();
-            int B1=color1.getBlue();
-            int G1=color1.getGreen();
-            return R1*R1+B1*B1+G1*G1;
-        }
-        else if(mode.equals("yieldBottomCorner"))
-        {
-            color1=_picture.get(x, y-1);
-            int R1=color1.getRed();
-            int B1=color1.getBlue();
-            int G1=color1.getGreen();
-            return R1*R1+B1*B1+G1*G1;
+        switch (mode) {
+            case "yieldX":
+                color1=picture.get(x+1,y);
+                color2=picture.get(x-1, y);
+                break;
+            case "yieldY":
+                color1=picture.get(x, y+1);
+                color2=picture.get(x, y-1);
+                break;
+            case "yieldTopCorner":
+            {
+                color1=picture.get(x, y+1);
+                int R1=color1.getRed();
+                int B1=color1.getBlue();
+                int G1=color1.getGreen();
+                return R1*R1+B1*B1+G1*G1;
+            }
+            case "yieldBottomCorner":
+            {
+                color1=picture.get(x, y-1);
+                int R1=color1.getRed();
+                int B1=color1.getBlue();
+                int G1=color1.getGreen();
+                return R1*R1+B1*B1+G1*G1;
+            }
         }
       
         int R1=color1.getRed();
