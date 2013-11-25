@@ -25,6 +25,28 @@ public class TestClient {
                 System.out.printf("%9.0f ", sc.energy(i, j));
 
             System.out.println();
+            
+     
         }
+        
+     System.out.println("\n\n");
+     System.out.println("------------------------");
+            
+     int[] findVertArray,findHorArray;
+     findVertArray = sc.findVerticalSeam();
+     findHorArray=sc.findHorizontalSeam();
+     for(int i=0;i<findVertArray.length;i++)
+     {
+         System.out.println(""+findVertArray[i]);
+     }
+        System.out.println("----------------------------");
+        System.out.println("\n\n");
+        
+        System.out.println("Horizontal Seam");
+    for(int i=0;i<findHorArray.length;i++)
+    {
+        System.out.println(""+findHorArray[i]);
+    }
+        
     }
 }

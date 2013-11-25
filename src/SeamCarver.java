@@ -16,11 +16,12 @@ public class SeamCarver {
              _yieldY="yieldY",
              _yieldTopCorner="yieldTopCorner",
              _yieldBottomCorner="yieldBottomCorner";
-    public static Picture _picture;
-    
+    private static Picture _picture;
+    private static double[][] _eMatrix;
     public SeamCarver(Picture picture)
     {
         _picture=picture;
+        _eMatrix=this.GetEnergyMatrix();
     }
     
     // current picture
@@ -78,6 +79,204 @@ public class SeamCarver {
         return GetEnergyYield(x, y, "yieldX")+GetEnergyYield(x, y, "yieldY");
     }
     
+    
+    
+    // sequence of indices for horizontal seam in current picture
+    public int[] findHorizontalSeam()
+    {
+        double[][] transopeMatrix=Transontire(_eMatrix);
+        double[] Energy=new double[this.width()];
+        int[] findArray=new int[_eMatrix.length];
+        
+        // find first pixel
+        for(int i=0;i<transopeMatrix[0].length-1;i++)
+        {
+            Energy[i]=transopeMatrix[0][i];
+        }
+        //sort it and find minimum energy.        
+        QuickSort.sort(Energy);
+        
+        int energyMinIndex=0;
+        for(int i=0;i<transopeMatrix[0].length-1;i++)
+        {
+            if(Energy[0]==transopeMatrix[i][0])
+            {
+                energyMinIndex=i;
+                findArray[0]=i;
+                break;
+            }
+        }
+       
+        int minWidthIndex=0;
+        for(int i=1;i<this.height()-1;i++)
+        {
+            
+            double[] tmp=new double[3];
+            int[] tmpIndex=new int[3];
+            if(i==1)
+                minWidthIndex=energyMinIndex;
+            int k=0;
+            for(int j=minWidthIndex-1;j<=minWidthIndex+1;j++)
+            {
+                
+                tmp[k]=transopeMatrix[j][i];;
+                tmpIndex[k]=j;
+                k++;
+            }
+            int index=this.GetMin(tmp,tmpIndex);
+            findArray[i]=index;
+        }
+        return findArray;
+       
+    
+    }
+   
+    private int GetMin(double[] arr,int[] tmpIndex)
+    {
+           double res;
+           int index;
+           double a=arr[0],b=arr[1],c=arr[2];
+           if(a < b && a < c){
+	         res = a;
+                 index=tmpIndex[0];
+	         }else if(c < b && c < a){
+                     {
+                         res = c;
+                         index=tmpIndex[2];
+                     }
+	         }else if(b < c && b < a){
+                     {res = b;index=tmpIndex[1];}
+	         }else{
+	        	 res = 0;
+                         index=tmpIndex[0];
+	        	 System.out.println("Use different numbers!");
+	         }
+	         return index;
+    }
+    
+    
+    
+    // sequence of indices for vertical   seam in current picture
+    public int[] findVerticalSeam()
+    {
+        double[] Energy=new double[this.width()];
+        int[] findArray=new int[this.height()];
+        
+        // find first pixel
+        for(int i=0;i<this.width();i++)
+        {
+            Energy[i]=this.energy(i, 0);
+        }
+        //sort it and find minimum energy.        
+        QuickSort.sort(Energy);
+        
+        int energyMinIndex=0;
+        for(int i=0;i<this.width()-1;i++)
+        {
+            if(Energy[0]==this.energy(i, 0))
+            {
+                energyMinIndex=i;
+                findArray[0]=i;
+                break;
+            }
+        }
+       
+        int minWidthIndex=0;
+        for(int i=1;i<this.height()-1;i++)
+        {
+            
+            double[] tmp=new double[3];
+            int[] tmpIndex=new int[3];
+            if(i==1)
+                minWidthIndex=energyMinIndex;
+            int k=0;
+            for(int j=minWidthIndex-1;j<=minWidthIndex+1;j++)
+            {
+                
+                tmp[k]=this.energy(j, i);
+                tmpIndex[k]=j;
+                k++;
+            }
+            int index=this.GetMin(tmp,tmpIndex);
+            findArray[i]=index;
+        }
+        return findArray;
+    
+    }
+    
+    // remove horizontal seam from current picture
+    public void removeHorizontalSeam(int[] a)
+    {
+    Picture newPicture = new Picture(this._picture.width() - 1, this._picture.height());
+                for(int i = 0; i < this._picture.width(); i++)
+                {
+                        for(int j = 0; j < this._picture.height(); j++)
+                        {
+                                try
+                                {
+                                        if(i < a[j])
+                                                newPicture.set(i, j, this._picture.get(i, j));
+                                        else if(i > a[j])
+                                                newPicture.set(i - 1, j, this._picture.get(i, j));
+                                }
+                                catch(Exception ex)
+                                {
+                                        throw new IllegalArgumentException("Bad argument! i =  " + i + " j = " + j + " a[j] = " + a[j]);
+                                }
+                        }
+                }
+                
+                this._eMatrix = GetEnergyMatrix();
+                this._picture = newPicture;
+    }
+    
+    // remove vertical   seam from current picture
+    public void removeVerticalSeam(int[] a)
+    {
+       Picture vertPicture=new Picture(this._picture.width(),this._picture.height()-1); 
+       for(int i=0;i<this._picture.width();i++)
+       {
+           for(int j=0;j<this._picture.height()-1;j++)
+           {
+               if(j<=a[i])
+                   vertPicture.set(i,j,this._picture.get(j, j));
+               else if(j>a[i])
+                   vertPicture.set(i,j-1,this._picture.get(i, j));
+           }
+       }
+       this._picture=vertPicture;
+       
+     
+    }
+    
+    
+    private double[][] GetEnergyMatrix()
+    {
+        
+         double[][] eMatrix=new double[_picture.width()][_picture.height()];
+         
+         for(int i=0;i<_picture.width()-1;i++)
+             for(int j=0;j<_picture.height()-1;j++)
+             {
+                 eMatrix[i][j]=this.energy(i, j);
+             }
+         
+         return eMatrix;
+        
+    }
+    private double[][] Transontire(double[][] eMatrix)
+    {
+        double[][] result = new double[eMatrix[0].length][eMatrix.length];
+                for(int i = 0; i < eMatrix.length; i++)
+                {
+                        for(int j = 0; j < eMatrix[i].length; j++)
+                                result[j][i] = eMatrix[i][j];
+                }
+        
+         return result;
+    
+    }
+    
     private static double GetEnergyYield(int x,int y,String mode)
     {
         Color color1 = null,color2 = null;
@@ -124,100 +323,4 @@ public class SeamCarver {
         return (double)(diffR*diffR+diffB*diffB+diffG*diffG);
     }
     
-    
-    // sequence of indices for horizontal seam in current picture
-    public int[] findHorizontalSeam()
-    {
-    
-        return null;
-    
-    }
-    private int GetMin(double[] arr)
-    {
-        int N=arr.length;
-        int index=0;
-        double tmp=0;
-        for(int j=0;j<N;j++)
-        {
-            int F=0;
-            for(int i=0;i<N;i++)
-            {
-                if(arr[i]>arr[i+1])
-                {
-                    arr[i+1]=tmp;
-                    arr[i]=arr[i+1];
-                    arr[i]=tmp;
-                    F=1;
-                    index=i;
-                }
-            }
-            if(F==0)
-                break;
-        }
-        return index;
-        /*
-         ЦИКЛ ДЛЯ J=1 ДО N-1 ШАГ 1                       FOR J=1 TO N-1 STEP 1
-   F=0                                             F=0 
-   ЦИКЛ ДЛЯ I=1 ДО N-J ШАГ 1                       FOR I=1 TO N-J STEP 1 
-     ЕСЛИ A[I] > A[I+1] ТО ОБМЕН A[I],A[I+1]:F=1     IF A[I]>A[I+1] THEN SWAP A[I],A[I+1]:F=1
-   СЛЕДУЮЩЕЕ I                                     NEXT I  
-   ЕСЛИ F=0 ТО ВЫХОД ИЗ ЦИКЛА                      IF F=0 THEN EXIT FOR
- СЛЕДУЮЩЕЕ J                                     NEXT J
-        */
-    }
-    
-    
-    
-    // sequence of indices for vertical   seam in current picture
-    public int[] findVerticalSeam()
-    {
-            double[] Energy=new double[this.width()];
-        double[] findArray=new double[this.height()];
-        
-        // find first pixel
-        for(int i=0;i<this.width();i++)
-        {
-            Energy[i]=this.energy(i, 0);
-        }
-        //sort it and find minimum energy.        
-        Quick.sort(Energy);
-        int energyMinIndex=0;
-        for(int i=0;i<this.width()-1;i++)
-        {
-            if(Energy[0]==this.energy(i, 0))
-            {
-                energyMinIndex=i;
-                findArray[0]=i;
-            }
-        }
-        int minWidthIndex=0;
-        for(int i=1;i<this.height()-1;i++)
-        {
-            double minEnergy=0;
-            double[] tmp=new double[3];
-            if(i==1)
-                minWidthIndex=energyMinIndex;
-            for(int j=minWidthIndex-1;j<minWidthIndex+1;j++)
-            {
-                minEnergy=this.energy(j, i);
-                tmp[j]=this.energy(j, i);
-            }
-            int index=this.GetMin(tmp);
-            findArray[i]=index;
-        }
-        return null;
-    
-    }
-    
-    // remove horizontal seam from current picture
-    public void removeHorizontalSeam(int[] a)
-    {
-    
-    }
-    
-    // remove vertical   seam from current picture
-    public void removeVerticalSeam(int[] a)
-    {
-    
-    }
 }

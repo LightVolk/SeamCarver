@@ -8,10 +8,10 @@
  *
  * @author Konstantin
  */
-public class Quick {
+public class QuickSort {
 
     // This class should not be instantiated.
-    private Quick() { }
+    private QuickSort() { }
 
     /**
      * Rearranges the array in ascending order, using the natural order.
